@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  app:
+    image: ghcr.io/thomasritaine/qrcode-redirect:main
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER_NAME}:${DATABASE_USER_PASSWORD}@database:5432/${DATABASE_NAME}?schema=public
+    volumes:
+      - ./geoip-data/data:/usr/src/app/node_modules/geoip-lite/data:ro
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # Web App
+      - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_DOMAIN_NAME}`)"
+      - "traefik.http.routers.${APP_NAME}.service=${APP_NAME}"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=3000"
+
+      # Web App - Admin
+      - "traefik.http.routers.admin-${APP_NAME}.rule=Host(`${APP_DOMAIN_NAME}`) && PathPrefix(`/admin`)"
+      - "traefik.http.routers.admin-${APP_NAME}.service=admin-${APP_NAME}"
+      - "traefik.http.routers.admin-${APP_NAME}.middlewares=auth-http-admin@file"
+      - "traefik.http.services.admin-${APP_NAME}.loadbalancer.server.port=3000"
+
+      # Prisma Studio
+      - "traefik.http.routers.prisma-${APP_NAME}.rule=Host(`prisma.${APP_DOMAIN_NAME}`)"
+      - "traefik.http.routers.prisma-${APP_NAME}.middlewares=auth-http-admin@file"
+      - "traefik.http.routers.prisma-${APP_NAME}.service=prisma-${APP_NAME}"
+      - "traefik.http.services.prisma-${APP_NAME}.loadbalancer.server.port=5555"
+
+  database:
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_USER_PASSWORD}
+    networks:
+      - default
+
+  # adminer:
+  #   image: adminer
+  #   environment:
+  #     ADMINER_DEFAULT_DB_DRIVER: postgres
+  #     ADMINER_DEFAULT_SERVER: database
+  #   networks:
+  #     - default
+  #     - proxy
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.adminer-${APP_NAME}.rule=Host(`adminer.${APP_DOMAIN_NAME_MIDJOURNEY}`)"
+  #     - "traefik.http.routers.adminer-${APP_NAME}.middlewares=auth-http-admin@file"
+
+networks:
+  default:
+  proxy:
+    external: true
