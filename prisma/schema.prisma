@@ -1,0 +1,38 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Redirection {
+  id             String           @id @default(uuid())
+  link           String
+  UserConnection UserConnection[]
+  createdAt      DateTime         @default(now())
+}
+
+model UserConnection {
+  id             String      @id @default(uuid())
+  redirection    Redirection @relation(fields: [redirectionId], references: [id])
+  redirectionId  String
+  ip             String?
+  ipRange        BigInt[]
+  timezone       String? // IANA timezone
+  countryCode    String? // 2 letters, ISO-3166-1 country code
+  regionCode     String? // 2 or 3 alphanumeric, ISO-3166-2 country subdivision code
+  city           String?
+  coordinates    Float[]
+  accuracyRadius Int? // Accuracy radius in km around the coordinates
+  deviceModel    String?
+  deviceType     String?
+  deviceVendor   String?
+  osName         String?
+  osVersion      String?
+  browserName    String?
+  browserVersion String?
+  createdAt      DateTime    @default(now())
+}
