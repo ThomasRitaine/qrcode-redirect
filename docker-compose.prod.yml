@@ -6,6 +6,8 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://${DATABASE_USER_NAME}:${DATABASE_USER_PASSWORD}@database:5432/${DATABASE_NAME}?schema=public
+      - ADMIN_USER_NAME=${ADMIN_USER_NAME}
+      - ADMIN_USER_PASSWORD=${ADMIN_USER_PASSWORD}
     volumes:
       - ./geoip-data/data:/usr/src/app/node_modules/geoip-lite/data:ro
     networks:
