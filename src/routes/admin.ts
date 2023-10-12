@@ -3,15 +3,28 @@ import express, { type Request, type Response } from "express";
 import { createRedirection } from "../services/prisma/redirection";
 import fs from "fs";
 import path from "path";
+import expressBasicAuth from "express-basic-auth";
 
 const router = express.Router();
+
+// HTTP Basic Auth
+const users: Record<string, string> = {};
+users[process.env.ADMIN_USER_NAME ?? "admin"] =
+  process.env.ADMIN_USER_PASSWORD ?? "admin";
+
+router.use(
+  expressBasicAuth({
+    users,
+    challenge: true,
+  }),
+);
 
 router.get("/admin", (req: Request, res: Response) => {
   fs.readFile(
     path.join(__dirname, "../views", "updateRedirection.html"),
     "utf8",
     (err, data) => {
-      if (err) {
+      if (err != null) {
         return res.status(500).send("Internal Server Error");
       }
       res.send(data);

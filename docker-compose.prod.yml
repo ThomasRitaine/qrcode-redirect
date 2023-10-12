@@ -19,12 +19,6 @@ services:
       - "traefik.http.routers.${APP_NAME}.service=${APP_NAME}"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=3000"
 
-      # Web App - Admin
-      - "traefik.http.routers.admin-${APP_NAME}.rule=Host(`${APP_DOMAIN_NAME}`) && PathPrefix(`/admin`)"
-      - "traefik.http.routers.admin-${APP_NAME}.service=admin-${APP_NAME}"
-      - "traefik.http.routers.admin-${APP_NAME}.middlewares=auth-http-admin@file"
-      - "traefik.http.services.admin-${APP_NAME}.loadbalancer.server.port=3000"
-
       # Prisma Studio
       - "traefik.http.routers.prisma-${APP_NAME}.rule=Host(`prisma.${APP_DOMAIN_NAME}`)"
       - "traefik.http.routers.prisma-${APP_NAME}.middlewares=auth-http-admin@file"
