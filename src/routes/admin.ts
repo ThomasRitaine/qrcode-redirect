@@ -38,8 +38,6 @@ router.post(
   bodyParser.urlencoded({ extended: true }),
   (req: Request, res: Response) => {
     void (async () => {
-      console.log(req.body);
-
       const { link } = req.body;
       await createRedirection(link);
 
