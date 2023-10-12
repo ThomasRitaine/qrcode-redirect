@@ -16,7 +16,7 @@ app.get("/", (req: Request, res: Response) => {
 
     // Create a user connection asynchronously
     void createUserConnection(
-      req.ip,
+      (req.headers["X-Real-Ip"] as string) ?? "",
       req.headers["user-agent"] ?? "",
       redirection?.id ?? "",
     );
