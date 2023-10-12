@@ -9,7 +9,12 @@ export const createUserConnection = async (
   ip: string,
   userAgent: string,
   redirectionId: string,
-): Promise<UserConnection> => {
+): Promise<UserConnection | null> => {
+  // Check if the redirection exists
+  if (redirectionId == "") {
+    return null;
+  }
+
   // Get data from the IP address and user agent
   const geo = geoip.lookup(ip);
   const userAgentParsed = new UAParser(userAgent);
